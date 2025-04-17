@@ -1,0 +1,27 @@
+#!/bin/fish
+
+function get_day
+    echo "$(date +%d)"
+end
+
+function get_month
+    echo "$(date +%m)"
+end
+
+function get_year
+    echo "$(date +%Y)"
+end
+
+function get_date
+    echo "$(date +%a", "%B" "%e)" 
+end
+
+if test $argv[1] = "day"
+    get_day
+else if test $argv[1] = "month"
+    get_month
+else if test $argv[1] = "year"
+    get_year
+else if test $argv[1] = "date"
+    get_date
+end

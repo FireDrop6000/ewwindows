@@ -1,0 +1,64 @@
+#!/bin/fish
+
+function get_charge
+    while read line
+        echo $line | awk '{print $1}'
+    end
+end
+
+function get_icon
+    while read line
+        set charge (echo $line | awk '{print $1}')
+        set charging (echo $line | awk '{print $2}')
+        if test $charging = "charging"
+            if test $charge -ge "80"
+                echo "./images/battery/charging/battery-fc.png"
+            else if test $charge -ge "60"
+                echo "./images/battery/charging/battery-34c.png"
+            else if test $charge -ge "40"
+                echo "./images/battery/charging/battery-12c.png"
+            else if test $charge -ge "20"
+                echo "./images/battery/charging/battery-14c.png"
+            else if test $charge -ge "0"
+                echo "./images/battery/charging/battery-ec.png"
+            end
+        else if test $charging = "fully-charged"
+            echo "./images/battery/battery-fp.png"
+        else
+            if test $charge -ge "80"
+                echo "./images/battery/battery-f.png"
+            else if test $charge -ge "60"
+                echo "./images/battery/battery-34.png"
+            else if test $charge -ge "40"
+                echo "./images/battery/battery-12.png"
+            else if test $charge -ge "20"
+                echo "./images/battery/battery-14.png"
+            else if test $charge -ge "0"
+                echo "./images/battery/battery-e.png"
+            end
+        end
+    end
+end
+
+function get_prompt
+    while read line
+        set charge (echo $line | awk '{print $1}')
+        if test $charge -gt "15"
+            echo "Please connect me to a power source"
+        else if test $charge -gt "10"
+            echo "I would strongly recommend that you plug me in now"
+        else if test $charge -gt "5"
+            echo "I recommend you to save your work"
+        else if test $charge -gt "0"
+            echo "Your computer will turn off shortly"
+        end
+    end
+end
+
+if test $argv = "get_charge"
+    ~/.config/eww/scripts/watch-output-battery | get_charge
+else if test $argv = "get_icon"
+    ~/.config/eww/scripts/watch-output-battery | get_icon
+else if test $argv = "get_prompt"
+    ~/.config/eww/scripts/watch-output-battery | get_prompt
+end

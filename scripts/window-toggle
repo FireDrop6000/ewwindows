@@ -1,0 +1,11 @@
+#!/bin/fish
+
+function toggler
+    if not eww active-windows | grep -q $argv[1]
+        eww open $argv[1]
+    else if eww active-windows | grep -q $argv[1]
+        eww close $argv[1]
+    end
+end
+
+toggler $argv[1]

@@ -1,0 +1,52 @@
+#!/bin/fish
+
+function get_backlight
+    while read line
+        echo $(math $line '/' 19200 '*' 100)
+    end
+end
+
+function get_current_backlight
+	set light (math (brightnessctl g) '/' 19200 '*' 100)
+	echo $light
+end
+
+function get_icon
+    while read line
+        set light (echo $(math $line '/' 19200 '*' 100))
+        if test $light -ge "0"
+            and test $light -lt "33"
+            echo "./images/brightness/dim.png"
+        else if test $light -ge "33"
+            and test $light -lt "66"
+            echo "./images/brightness/semi-bright.png"
+        else if test $light -ge "66"
+            echo "./images/brightness/bright.png"
+        end
+    end
+end
+
+function get_current_icon
+    set light (get_current_backlight)
+    if test $light -ge "0"
+        and test $light -lt "33"
+        echo "./images/brightness/dim.png"
+    else if test $light -ge "33"
+        and test $light -lt "66"
+        echo "./images/brightness/semi-bright.png"
+    else if test $light -ge "66"
+        echo "./images/brightness/bright.png"
+    end
+end
+
+if test $argv = "get_backlight"
+    get_current_backlight
+    ~/.config/eww/scripts/watch-output-brightness | get_backlight
+else if test $argv = "get_icon"
+    get_current_icon
+    ~/.config/eww/scripts/watch-output-brightness | get_icon
+else if test $argv = "get_current_backlight"
+    get_current_backlight
+else if test $argv = "get_current_icon"
+    get_current_icon
+end

@@ -1,0 +1,1279 @@
+(defvar IMAGE "./images/start.png")
+(defvar WORKSPACES "./images/workspaces.png")
+(defvar EXPLORER "./images/file-explorer.png")
+(defvar BROWSER "./images/chrome.png")
+(defvar CODE "./images/vs-code.png")
+(defvar TERMINAL "./images/terminal.png")
+(defvar SPOTIFY "./images/spotify.png")
+(defvar PREV "./images/media/prev.png")
+(defvar NEXT "./images/media/next.png")
+(defvar POWER_BTN "./images/power.png")
+(defvar NOTIF_BTN "./images/notification.png")
+(defvar ARROW "./images/arrow/right-arrow-disabled.png")
+(defvar QUICK_ACTION "./images/switch.png")
+(defvar CLOCK_ICON "./images/clock.png")
+(defvar CALENDAR_ICON "./images/calendar.png")
+(defvar WEATHER_ICON "./images/weather.png")
+(defvar PROFILE_PIC "./images/profile-pic.png")
+(defvar MICROSOFT_ICON "./images/microsoft.png")
+(defvar DEVICE_ICON "./images/device.png")
+(defvar WALLPAPER "/home/pratik/Pictures/Wallpaper/current_wallpaper.png")
+(defvar HYPRLAND_ICON "./images/hyprland.png")
+(defvar UPTIME_ICON "./images/uptime.png")
+;; (defpoll UP_SINCE_TIME
+;;   :interval "24h"
+;;   "uptime -s | awk '{print $2}'")
+;; (defpoll UP_SINCE_DATE
+;;   :interval "24h"
+;;   "uptime -s | awk '{print $1}'")
+(defvar UPDATE_ICON "./images/update.png")
+(defvar PACMAN_ICON "./images/pacman.png")
+(defvar PERFORMANCE_ICON "./images/performance.png")
+
+(defwindow bar
+  :monitor 0
+  :geometry (geometry
+              :anchor "bottom center"
+              :height "30px"
+              :width "1160px")
+  :stacking "fg"
+  :exclusive true
+  (bar)
+  )
+
+(defwidget bar []
+  (centerbox
+    :orientation "horizontal"
+    (leftBar)
+    (midBar)
+    (rightBar)
+    )
+  )
+
+(defwidget leftBar []
+  (box
+    :class "leftBox"
+    (button
+      :class "widgets-btn"
+      :onclick "./scripts/window-toggle widgets_hub"
+      (box
+        :orientation "vertical"
+        :space-evenly false
+        :spacing 0
+        (box
+          :class "time"
+          :halign "start"
+          "${time}")
+        (box
+          :class "date"
+          :halign "start"
+          "${date}")
+        )
+      )
+    )
+  )
+
+(defwidget midBar []
+  (box
+    :orientation "horizontal"
+    :class "midBox"
+    :width 900
+    (box
+      :space-evenly false
+      :spacing 11
+      :style "margin-left: 266px;"
+      (button
+      :onclick "rofi -show drun &"
+      :class "start-cover"
+      :valign "center"
+       (box
+        :class "start"
+        :halign "center"
+         :valign "center"
+        :style "background-image: url('${IMAGE}')")
+      )
+     (button
+        :onclick "hyprctl dispatch overview:open"
+        :class "workspaces-cover"
+       :valign "center"
+        (box
+          :class "workspaces"
+        :halign "center"
+          :valign "center"
+        :style "background-image: url('${WORKSPACES}')")
+        )
+    (button
+      :onclick "dolphin &"
+      :class "explorer-cover"
+      :valign "center"
+      (box
+        :class "explorer"
+      :halign "center"
+        :valign "center"
+      :style "background-image: url('${EXPLORER}')")
+      )
+    (button
+      :onclick "thorium-browser --ozone-platform=wayland --disable-features=UseChromeOSDirectVideoDecoder &"
+      :class "browser-cover"
+      :valign "center"
+      (box
+        :class "browser"
+        :halign "center"
+        :valign "center"
+        :style "background-image: url('${BROWSER}')")
+      )
+    (button
+      :onclick "spotify --ozone-platform=wayland --disable-features=UseChromeOSDirectVideoDecoder &"
+      :class "spotify-cover"
+      :valign "center"
+      (box
+        :class "spotify"
+        :halign "center"
+        :valign "center"
+        :style "background-image: url('${SPOTIFY}')")
+      )
+    (button
+      :onclick "codium &"
+      :class "code-cover"
+      :valign "center"
+      (box
+        :class "code"
+        :halign "center"
+        :valign "center"
+        :style "background-image: url('${CODE}')")
+      )
+    (button
+      :onclick "kitty &"
+      :class "terminal-cover"
+      :valign "center"
+      (box
+        :class "terminal"
+        :halign "center"
+        :valign "center"
+        :style "background-image: url('${TERMINAL}')")
+      )
+      )
+    )
+  )
+  
+
+(defwidget rightBar []
+  (box
+    :class "rightBox"
+    (button
+      :class "quick-actions-btn"
+      :onclick "./scripts/window-toggle action_center"
+      (box
+        :orientation "horizontal"
+        :space-evenly false
+        :spacing 20
+        (box
+          :class "network"
+          :halign "center"
+          :style "background-image: url('${network}');")
+        (box
+          :class "volume"
+          :halign "center"
+          :style "background-image: url('${volume}');")
+        (box
+          :class "power"
+          :halign "center"
+          :style "background-image: url('${power}');"
+            )
+        )
+      )
+    )
+  )
+
+(defpoll time
+  :interval "1s"
+  "~/.config/eww/scripts/clock get_clock_locale")
+(defpoll date
+  :interval "1s"
+  "~/.config/eww/scripts/date date")
+(defpoll network
+  :interval "1s"
+  "~/.config/eww/scripts/network")
+(deflisten volume
+  "~/.config/eww/scripts/volume get_icon")
+(deflisten power
+  "~/.config/eww/scripts/power get_icon")
+
+(defwindow central
+  :monitor 0
+  :geometry (geometry
+              :anchor "top left"
+              :y "10px"
+              :height "300px"
+              :width "300px")
+  :stacking "bg"
+  :exclusive false
+  :namespace "central"
+  (central))
+
+(defwidget central []
+  (centerbox
+    :orientation "vertical"
+    (clock)
+    (date)
+    (weather)
+    ))
+
+(defwidget clock []
+  (label
+    :class "clock"
+    :text "${big_time}"
+    ))
+
+(defwidget date []
+  (label
+    :class "big-date"
+    :text "${date}"
+    ))
+
+(defwidget weather []
+  (box
+    :class "weather"
+    :halign "center"
+    :valign "center"
+    :space-evenly false
+    :spacing 10
+    (box
+      :class "weather-icon-cover"
+      (box
+          (box
+              :class "weather-icon"
+              :style "background-image: url('${weather_icon}');"
+          )
+        )
+      )
+    (label
+      :class "weather-con"
+      :text "${weather_con}"
+      :show-truncated false
+      )
+    (label
+      :class "weather-temp"
+      :text "${weather_temp}°C"
+      )
+    ))
+
+(defpoll big_time
+  :interval "1s"
+  "~/.config/eww/scripts/clock get_simple_clock")
+
+(defpoll weather_icon
+  :interval "30m"
+  "~/.config/eww/scripts/weather --icon")
+
+(defpoll weather_con
+  :interval "30m"
+  "~/.config/eww/scripts/weather --con")
+
+(defpoll weather_temp
+  :interval "30m"
+  "~/.config/eww/scripts/weather --temp")
+
+(defwindow action_center
+  :monitor 0
+  :geometry (geometry
+              :anchor "right bottom"
+              :x "219px"
+              :height "471px"
+              :width "350px")
+  :stacking "fg"
+  :exclusive false
+  (action_center))
+
+(defwidget action_center []
+  (box
+    :orientation "vertical"
+    :space-evenly false
+    :class "action-center"
+    (music)
+    (actions)
+    ))
+
+(defwidget music []
+(box
+  :class "player-box"
+  :orientation "vertical"
+  :space-evenly false
+  :vexpand false
+  :hexpand false
+  (box
+    :halign "horizontal"
+    :space-evenly false
+    (box
+      :class "player-icon-cover"
+      (box
+        :class "player-icon"
+        :style "background-image: url('${player_icon}');")
+    )
+    (label
+      :class "player-name"
+      :halign "start"
+      :show-truncated true
+      :limit-width 25
+      :text "${player_name}")
+    )
+  (box
+    :orientation "horizontal"
+    :class "media-details"
+    :space-evenly false
+    (box
+      :orientation "vertical"
+      (label
+        :class "song-name"
+        :halign "start"
+        :limit-width 25
+        :text "${song_name}")
+      (label
+        :class "artist-name"
+        :halign "start"
+        :text "${artist_name}")
+      (box
+        :class "media-btn"
+        :orientation "horizontal"
+        :space-evenly false
+        :spacing 10
+        (button
+          :onclick "./scripts/media-player --prev"
+          :class "prev-btn-cover"
+          :valign "center"
+          (box
+            (box
+              :class "prev-btn"
+              :style "background-image: url('${PREV}');"))
+        )
+        (button
+          :onclick "./scripts/media-player --play-pause"
+          :class "play-btn-cover"
+          (box
+            (box
+              :class "play-btn"
+              :style "background-image: url('${play_pause}');"))
+        )
+        (button
+          :onclick "./scripts/media-player --next"
+          :class "prev-btn-cover"
+          :valign "center"
+          (box
+            (box
+              :class "prev-btn"
+              :style "background-image: url('${NEXT}');"))
+        )
+      )
+    )
+      (box
+        :class "song-art"
+        :style "background-image: url('${media_art}');")
+  ) 
+)
+)
+
+(defpoll player_name
+  :interval "2s"
+  "~/.config/eww/scripts/media-player --player")
+
+(defpoll player_icon
+  :interval "2s"
+  "~/.config/eww/scripts/media-player --player-icon")
+
+(defpoll song_name
+  :interval "2s"
+  "~/.config/eww/scripts/media-player --title")
+
+(defpoll artist_name
+  :interval "2s"
+  "~/.config/eww/scripts/media-player --artist")
+
+(defpoll media_art
+  :interval "2s"
+  "~/.config/eww/scripts/media-player --art")
+
+(defpoll play_pause
+  :interval "2s"
+  "~/.config/eww/scripts/media-player --status")
+
+(defwidget actions []
+  (box
+    :class "actions-box"
+    :orientation "vertical"
+    :space-evenly false
+    :vexpand false
+    :hexpand false
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+      :style "margin: -5px 0px 20px 0px;"
+      (box
+        :class "quick-action-icon-cover"
+          (box
+            :class "quick-action-icon"
+            :style "background-image: url('${QUICK_ACTION}');"))
+      (label
+        :class "action-title"
+        :show-truncated false
+        :text "Quick Controls")
+      (button
+        :class "notif-btn"
+        :onclick "swaync-client -t -sw && eww close action_center"
+        (box
+          (box
+              :class "notif-image"
+              :halign "center"
+              :style "background-image: url('${NOTIF_BTN}');"))
+        )
+      )
+    (box
+      :class "row-1"
+      :orientation "horizontal"
+      :space-evenly false
+      (box
+        :class "wifi-action"
+        :orientation "horizontal"
+        (button
+          :onclick "~/.config/eww/scripts/wifi-action --toggle"
+          :class "wifi-action-icon-cover"
+          :style "background-color: ${wifi_color};"
+          (box
+            (box
+              :class "wifi-action-icon"
+              :style "background-image: url('${wifi_action_icon}'); transition: 0.3s;")
+            )
+          )
+        (button
+          :onclick "eww close action_center & ~/.config/rofi/wifi/wifi"
+          :class "arrow-cover"
+          (box
+            (box
+              :class "arrow"
+              :style "background-image: url('${ARROW}'); transition: 0.3s;")
+            )
+          )
+        )
+      (box 
+        :class "bt-action"
+        :orientation "horizontal"
+        (button
+          :onclick "~/.config/eww/scripts/bt-action --toggle"
+          :class "bt-action-icon-cover"
+          :style "background-color: ${bt_color}"
+          (box
+            (box
+              :class "bt-action-icon"
+              :style "background-image: url('${bt_action_icon}'); transition: 0.3s;")
+            )
+          )
+        (button
+          :onclick "eww close action_center & ~/.config/rofi/bluetooth/rofi-bluetooth"
+          :class "arrow-cover"
+          (box
+            (box
+              :class "arrow"
+              :style "background-image: url('${ARROW}'); transition: 0.3s;")
+            )
+          )
+        )
+      (box 
+        :class "am-action"
+        :orientation "horizontal"
+        (button
+          :onclick "~/.config/eww/scripts/airplane-mode toggle"
+          :class "am-action-icon-cover"
+          :style "background-color: ${am_color}"
+          (box
+            (box
+              :class "am-action-icon"
+              :style "background-image: url('${am_action_icon}'); transition: 0.3s;")
+            )
+          )
+        )
+      )
+    (box
+      :class "label-row-1"
+      :orientation "horizontal"
+      :space-evenly false
+      (label
+        :class "wifi-name"
+        :halign "center"
+        :show-truncated true
+        :limit-width 12
+        :text "${wifi_name}"
+        )
+      (label
+        :class "bt-name"
+        :text "${bt_name}")
+      (label
+        :class "am-label"
+        :text "Airplane mode")
+      )
+    (box
+      :class "row-2"
+      :orientation "horizontal"
+      :space-evenly false
+      (box
+        :class "sunset-action"
+        :orientation "horizontal"
+        (button
+          :onclick "~/.config/eww/scripts/sunset-action toggle"
+          :class "sunset-action-icon-cover"
+          :style "background-color: ${sunset_color}"
+          (box
+            (box
+              :class "sunset-action-icon"
+              :style "background-image: url('${sunset_action_icon}'); transition: 0.3s;")
+            )
+          )
+        )
+      (box 
+        :class "dnd-action"
+        :orientation "horizontal"
+        (button
+          :onclick "~/.config/eww/scripts/dnd-action toggle"
+          :class "dnd-action-icon-cover"
+          :style "background-color: ${dnd_color}"
+          (box
+            (box
+              :class "dnd-action-icon"
+              :style "background-image: url('${dnd_action_icon}'); transition: 0.3s;")
+            )
+          )
+        )
+      )
+      (box
+      :class "label-row-2"
+      :orientation "horizontal"
+      :space-evenly false
+      (label
+        :class "sunset-label"
+        :text "Bluelight filter"
+        )
+      (label
+        :class "dnd-label"
+        :text "Focus mode")
+      )
+  (box
+    :class "slider-box"
+    :orientation "vertical"
+    (box
+      :class "volume-slider-box"
+      :orientation "horizontal"
+      :space-evenly false
+      :vexpand true
+      (button
+        :onclick "~/.config/eww/scripts/volume toggle"
+        :class "volume-slider-icon-cover"
+        (box
+        (box
+          :class "volume-slider-icon"
+          :halign "center"
+          :style "background-image: url('${volume}');")))
+      (scale
+        :class "volume-slider"
+        :min 0
+        :max 150
+        :value current_volume
+        :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")
+      )
+    (box
+      :class "brightness-slider-box"
+      :orientation "horizontal"
+      :space-evenly false
+      :vexpand true
+      (box
+        :class "brightness-slider-icon-cover"
+        (box
+        (box
+          :class "brightness-slider-icon"
+          :halign "center"
+          :style "background-image: url('${brightness}');")))
+      (scale
+        :class "brightness-slider"
+        :min 0
+        :max 100
+        :value current_brightness
+        :onchange "brightnessctl set {}%"
+        )
+      )
+    )
+    (box
+      :class "action-base-row"
+      :orientation "horizontal"
+      :space-evenly false
+      (box
+        :class "action-base-power-cover"
+        (box
+          :class "action-base-bat"
+          :halign "center"
+          :style "background-image: url('${power}');"
+        )
+        )
+      (label
+        :class "power-perc"
+        :show-truncated false
+        :valign "center"
+        :text "${power_perc}%")
+        (button
+          :onclick "eww close action_center & ~/.config/rofi/rofi-power-menu/powermenu"
+          :class "power-btn"
+          (box
+            (box
+              :class "action-base-power"
+              :halign "center"
+              :style "background-image: url('${POWER_BTN}');"
+          )
+            )
+          )
+      )
+    )
+  )
+
+(defpoll wifi_action_icon
+  :interval "2s"
+  "~/.config/eww/scripts/wifi-action --icon")
+
+(defpoll wifi_arrow
+  :interval "2s"
+  "~/.config/eww/scripts/wifi-action --arrow")
+
+(defpoll wifi_color
+  :interval "2s"
+  "~/.config/eww/scripts/wifi-action --color")
+
+(defpoll bt_action_icon
+  :interval "2s"
+  "~/.config/eww/scripts/bt-action --icon")
+
+(defpoll bt_arrow
+  :interval "2s"
+  "~/.config/eww/scripts/bt-action --arrow")
+
+(defpoll bt_color
+  :interval "2s"
+  "~/.config/eww/scripts/bt-action --color")
+
+(defpoll am_action_icon
+  :interval "2s"
+  "~/.config/eww/scripts/airplane-mode icon")
+
+(defpoll am_color
+  :interval "2s"
+  "~/.config/eww/scripts/airplane-mode color")
+
+(defpoll wifi_name
+  :interval "2s"
+  "~/.config/eww/scripts/wifi-action --name")
+
+(defpoll bt_name
+  :interval "2s"
+  "~/.config/eww/scripts/bt-action --name")
+
+(defpoll sunset_action_icon
+  :interval "2s"
+  "~/.config/eww/scripts/sunset-action icon")
+
+(defpoll sunset_color
+  :interval "2s"
+  "~/.config/eww/scripts/sunset-action color")
+
+(defpoll dnd_action_icon
+  :interval "2s"
+  "~/.config/eww/scripts/dnd-action icon")
+
+(defpoll dnd_color
+  :interval "2s"
+  "~/.config/eww/scripts/dnd-action color")
+
+(deflisten current_volume
+  "~/.config/eww/scripts/volume get_volume")
+
+(deflisten brightness
+  "~/.config/eww/scripts/brightness get_icon")
+
+(deflisten current_brightness
+  "~/.config/eww/scripts/brightness get_backlight")
+
+(deflisten power_perc
+  "~/.config/eww/scripts/power get_charge")
+
+(defwindow volume_slider_bar
+  :monitor 0
+  :geometry (geometry
+              :anchor "top center"
+              :y "30px"
+              :height "30px"
+              :width "130px")
+  :stacking "overlay"
+  :namespace "volume-slider-bar"
+  (volume_slider_bar)
+  )
+
+(defwidget volume_slider_bar []
+    (box
+    :class "volume-slider-bar"
+    :orientation "horizontal"
+    :space-evenly false
+    :vexpand true
+    (button
+      :onclick "~/.config/eww/scripts/volume toggle"
+      :class "volume-slider-icon-cover"
+      (box
+      (box
+        :class "volume-slider-icon"
+        :halign "center"
+        :style "background-image: url('${volume}');")))
+    (scale
+      :class "volume-slider"
+      :min 0
+      :max 150
+      :value current_volume
+      :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")
+    (label
+      :class "current-volume"
+      :show-truncated false
+      :text "${unit_volume}")
+    )
+  )
+
+(deflisten unit_volume
+  "~/.config/eww/scripts/volume get_volume")
+
+(defwindow brightness_slider_bar
+  :monitor 0
+  :geometry (geometry
+              :anchor "top center"
+              :y "30px"
+              :height "30px"
+              :width "130px")
+  :stacking "overlay"
+  :namespace "brightness-slider-bar"
+  (brightness_slider_bar)
+  )
+
+(defwidget brightness_slider_bar []
+    (box
+    :class "brightness-slider-bar"
+    :orientation "horizontal"
+    :space-evenly false
+    :vexpand true
+      (box
+        :class "brightness-slider-icon-cover"
+        (box
+        (box
+          :class "brightness-slider-icon"
+          :halign "center"
+          :style "background-image: url('${brightness}');")))
+      (scale
+        :class "brightness-slider"
+        :min 0
+        :max 100
+        :value current_brightness
+        :onchange "brightnessctl set {}%"
+        )
+    (label
+      :class "current-volume"
+      :show-truncated false
+      :text "${unit_brightness}")
+    )
+  )
+
+(deflisten unit_brightness
+  "~/.config/eww/scripts/brightness get_backlight")
+
+(defwindow battery_warning
+  :monitor 0
+  :geometry (geometry
+              :anchor "center"
+              :height "170px"
+              :width "700px")
+  :stacking "overlay"
+  :namespace "battery-warning"
+  (battery_warning)
+  )
+
+(defwidget battery_warning []
+    (box
+      :class "battery-warning"
+      :orientation "vertical"
+      :space-evenly false
+      (label
+        :class "warning-heading"
+        :halign "start"
+        :text "Please be advised that my battery is running low (${battery_perc}%)")
+      (label
+        :class "warning-body"
+        :halign "start"
+        :text "${battery_prompt}")
+      (button
+        :onclick "eww close battery_warning"
+        :halign "end"
+        (label
+          :text "Okay"))
+    )
+  )
+
+(deflisten battery_perc
+  "~/.config/eww/scripts/power get_charge")
+
+(deflisten battery_prompt
+  "~/.config/eww/scripts/power get_prompt")
+
+(defwindow widgets_hub
+  :monitor 0
+  :geometry (geometry
+              :anchor "left bottom"
+              :x "219px"
+              :height "570px"
+              :width "550px")
+  :stacking "fg"
+  :exclusive false
+  (widgets_hub))
+
+(defwidget widgets_hub []
+  (box
+    :orientation "horizontal"
+    :space-evenly false
+    :class "widgets-hub"
+    (widget_row_2)
+    (widget_row_1)
+    ))
+
+(defwidget widget_row_1 []
+  (box
+    :orientation "vertical"
+    :space-evenly false
+    :style "margin-left: 7px;"
+    (exp_clock)
+    (exp_calendar)
+    (exp_weather)
+    ))
+
+(defwidget exp_clock []
+  (box
+    :class "exp-clock"
+    :orientation "vertical"
+    :space-evenly false
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+      (box
+        :class "clock-icon-cover"
+        (box
+          :class "clock-icon"
+          :style "background-image: url('${CLOCK_ICON}');"))
+      (label
+        :class "clock-title"
+        :text "Clock"))
+    (label
+      :class "exp-clock-digits"
+      :text "${exp_time}")
+    )
+  )
+
+(defwidget exp_calendar []
+  (box
+    :class "exp_calendar"
+    :orientation "vertical"
+    :space-evenly false
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+      (box
+        :class "calendar-icon-cover"
+        (box
+          :class "calendar-icon"
+          :style "background-image: url('${CALENDAR_ICON}');"))
+      (label
+        :class "calendar-title"
+        :text "Calendar"))
+    (box :class "cal-box" 
+     :orientation "vertical"
+	(box :class "cal-inner-box"
+	(calendar :class "cal" 
+			  :day calendar_day 
+			  :month calendar_month 
+			  :year calendar_year)))
+    ))
+
+(defwidget exp_weather []
+  (box
+    :class "exp-weather"
+    :space-evenly false
+    :orientation "vertical"
+    :style "${weather_bg}"
+    ;; (box
+    ;;   :orientation "horizontal"
+    ;;   :space-evenly false
+    ;;   (box
+    ;;     :class "weather-title-icon-cover"
+    ;;     (box
+    ;;       :class "weather-title-icon"
+    ;;       :style "background-image: url('${WEATHER_ICON}');"))
+    ;;   (label
+    ;;     :class "weather-title"
+    ;;     :text "Weather"))
+    (label
+      :class "location"
+      :halign "start"
+      :text "${get_loc}")
+    (box
+      :class "weather-details"
+      :orientation "horizontal"
+      :space-evenly false
+      (box
+        :class "exp-weather-icon"
+        :valign "center"
+        :style "background-image: url('${weather_icon}');"
+        )
+      (label
+        :class "exp-temp"
+        :show-truncated false
+        :text "${weather_temp}")
+      (label
+        :class "temp-unit"
+        :valign "start"
+        :text "°C")
+      (label
+        :class "exp-con"
+        :halign "end"
+        :show-truncated false
+        :text "${weather_con}")
+      )
+    (button
+      :class "full-weather"
+      :onclick "eww close widgets_hub && xdg-open https://www.msn.com/en-in/weather/forecast/ &"
+      :halign "center"
+      (label
+        :text "See full forecast"))
+    ))
+
+(defpoll exp_time
+  :interval "1s"
+  "~/.config/eww/scripts/clock get_exp_clock")
+
+(defpoll calendar_day
+  :interval "5m"
+  "~/.config/eww/scripts/date day")
+
+(defpoll calendar_month
+  :interval "5m"
+  "~/.config/eww/scripts/date month")
+
+(defpoll calendar_year
+  :interval "5m"
+  "~/.config/eww/scripts/date year")
+
+(defpoll get_loc
+  :interval "30m"
+  "~/.config/eww/scripts/weather loc")
+
+(defpoll weather_bg
+  :interval "30m"
+  "~/.config/eww/scripts/weather bg")
+
+(defwidget widget_row_2 []
+  (box
+    :orientation "vertical"
+    :space-evenly false
+    (profile)
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+      (device)
+      (box
+        :orientation "vertical"
+        :space-evenly false
+        (uptime)
+        (updates)
+        )
+      )
+    (performance_monitor)
+    ))
+
+(defwidget profile []
+  (box
+    :class "profile-card"
+    :orientation "vertical"
+    :space-evenly false
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+        (box
+          :class "microsoft-icon-cover"
+          (box
+            :class "microsoft-icon"
+            :style "background-image: url('${MICROSOFT_ICON}');"))
+        (label
+          :class "account-title"
+          :text "Microsoft Account")
+      )
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+      :style "margin-top: 10px;"
+      (label
+        :class "hello"
+        :show-truncated false
+        :text "Hello ")
+      (label
+        :class "username"
+        :show-truncated false
+        :text "${username}")
+      (box
+        :class "face-cover"
+        (box
+          :class "face"
+          :style "background-image: url('${PROFILE_PIC}');")
+        )
+      )
+    ))
+
+(defwidget device []
+  (box
+    :orientation "vertical"
+    :class "about-device"
+    :space-evenly false
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+        (box
+          :class "device-icon-cover"
+          (box
+            :class "device-icon"
+            :style "background-image: url('${DEVICE_ICON}');"))
+        (label
+          :class "device-title"
+          :text "System")
+      )
+    (box
+      :halign "start"
+      :class "wallpaper"
+      :style "background-image: url('${WALLPAPER}');")
+    (label
+      :class "hostname"
+      :show-truncated false
+      :halign "start"
+      :text "${hostname}")
+    (label
+      :class "hardware"
+      :show-truncated false
+      :halign "start"
+      :text "${hardware}")
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+      :style "margin-top: 20px; margin-left: -3px;"
+        (box
+          :class "hyprland-icon-cover"
+          (box
+            :class "hyprland-icon"
+            :style "background-image: url('${HYPRLAND_ICON}');"))
+        (label
+          :class "hyprland"
+          :text "Hyprland v${hyprland_version}")
+      )
+    ))
+
+(defwidget uptime []
+  (box
+    :class "uptime"
+    :space-evenly false
+    :orientation "vertical"
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+        (box
+          :class "uptime-icon-cover"
+          (box
+            :class "uptime-icon"
+            :style "background-image: url('${UPTIME_ICON}');"))
+        (label
+          :class "uptime-title"
+          :text "Uptime")
+    )
+    (box
+      :class "uptime-details"
+      :orientation "vertical"
+      :space-evenly false
+      (label
+        :halign "start"
+        :show-truncated false
+        :text "${uptime_1}")
+      (label
+        :halign "start"
+        :show-truncated false
+        :style "margin-top: -15px;"
+        :text "${uptime_2}")
+      )
+    ;; (box
+    ;;   :class "up-since"
+    ;;   :orientation "vertical"
+    ;;   :space-evenly false
+    ;;   (label
+    ;;     :halign "start"
+    ;;     :show-truncated false
+    ;;     :text "Up since:")
+    ;;   (label
+    ;;     :halign "start"
+    ;;     :show-truncated false
+    ;;     :text "${UP_SINCE_TIME}")
+    ;;   (label
+    ;;     :halign "start"
+    ;;     :show-truncated false
+    ;;     :text "${UP_SINCE_DATE}")
+    ;;   )
+    ))
+
+(defwidget updates []
+  (box
+    :class "updates"
+    :orientation "vertical"
+    :space-evenly false
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+      (box
+        :class "updates-icon-cover"
+        (box
+          :class "updates-icon"
+          :style "background-image: url('${UPDATE_ICON}');"))
+      (label
+        :class "updates-title"
+        :show-truncated false
+        :halign "start"
+        :wrap true
+        :text "Windows Update")
+    )
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+      :style "margin-top: 5px;"
+      (label
+        :class "update-details"
+        :show-truncated false
+        :text "${update_details}")
+        (box
+          :class "pacman-icon-cover"
+          (box
+            :class "pacman-icon"
+            :style "background-image: url('${PACMAN_ICON}');"))
+    )
+    ))
+
+(defwidget performance_monitor []
+  (box
+    :orientation "vertical"
+    :space-evenly false
+    :class "performance-monitor"
+    (box
+      :orientation "horizontal"
+      :space-evenly false
+      (box
+        :class "performance-icon-cover"
+        (box
+          :class "performance-icon"
+          :style "background-image: url('${PERFORMANCE_ICON}');"))
+      (label
+        :class "performance-title"
+        :show-truncated false
+        :halign "start"
+        :wrap true
+        :text "Performance Monitor")
+    )
+    (box
+      :class "performance-metrics"
+      :orientation "horizontal"
+      :space-evenly false
+      :spacing 20
+      (box
+        :orientation "vertical"
+        :space-evenly false
+        (label
+          :class "ram"
+          :show-truncated false
+          :text "${round(EWW_RAM.used_mem_perc, 0)}%")
+        (label
+          :class "performance-label"
+          :text "RAM")
+        )
+      (box
+        :orientation "vertical"
+        :space-evenly false
+        (label
+          :class "disk-1"
+          :show-truncated false
+          :text "${round(EWW_DISK["/"].used_perc, 0)}%")
+        (label
+          :class "performance-label"
+          :text "SSD")
+        )
+      (box
+        :orientation "vertical"
+        :space-evenly false
+        (label
+          :class "disk-2"
+          :show-truncated false
+          :text "${round(EWW_DISK["/home"].used_perc, 0)}%")
+        (label
+          :class "performance-label"
+          :text "HDD")
+        )
+      (box
+        :orientation "vertical"
+        :space-evenly false
+        (label
+          :class "cpu"
+          :show-truncated false
+          :text "${round(EWW_CPU.avg, 0)}%")
+        (label
+          :class "performance-label"
+          :text "CPU")
+        )
+      )
+    )
+  )
+
+(defpoll username
+  :interval "24h"
+  "~/.config/eww/scripts/names username")
+
+(defpoll hostname
+  :interval "24h"
+  "~/.config/eww/scripts/names hostname")
+
+(defpoll hardware
+  :interval "24h"
+  "~/.config/eww/scripts/names hardware")
+
+(defpoll hyprland_version
+  :interval "24h"
+  "hyprctl version | awk '{print $2}' | head -n 1")
+
+(defpoll uptime_1
+  :interval "1m"
+  "~/.config/eww/scripts/uptime get_first")
+
+(defpoll uptime_2
+  :interval "1m"
+  "~/.config/eww/scripts/uptime get_second")
+
+(defpoll update_details
+  :interval "24h"
+  "checkupdates | wc -l")
+
+(defwidget activate-linux []
+  (box
+    :orientation "v"
+    :halign "start"
+    :valign "start"
+    (label :xalign 0 :markup "<span font_size=\"large\">Activate Windows 12</span>")
+    (label :xalign 0 :text "Go to Settings to activate Windows")))
+
+(defwindow activate-linux
+  :monitor 0
+  :stacking "bg"
+  :namespace "activation"
+  :geometry (geometry :x "8px" :y "32px" :width "250px" :anchor "bottom right")
+  (activate-linux))

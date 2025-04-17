@@ -1,0 +1,38 @@
+#!/bin/fish
+
+function get_status
+    set dnd_status (swaync-client -D)
+    echo $dnd_status
+end
+
+function get_icon
+    set dnd_status (get_status)
+    if test $dnd_status = "true"
+        echo "./images/dnd/dnd-on.png"
+    else
+        echo "./images/dnd/dnd-off.png"
+    end
+end
+
+function bg_color
+    set dnd_status (get_status)
+    if test $dnd_status = "true"
+        echo "#2e7cea"
+    else
+        echo "white"
+    end
+end
+
+function toggle
+    swaync-client -d
+end
+
+if test $argv = "status"
+    get_status
+else if test $argv = "icon"
+    get_icon
+else if test $argv = "color"
+    bg_color
+else if test $argv = "toggle"
+    toggle
+end

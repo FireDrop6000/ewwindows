@@ -1,0 +1,31 @@
+#!/bin/fish
+
+function get_username
+    echo $(whoami | sed 's/^\(.\)/\U\1/')
+end
+
+function get_hostname
+    echo $(hostnamectl hostname | sed 's/^\(.\)/\U\1/')
+end
+
+set details (hostnamectl --json=short)
+
+function get_vendor
+    echo $(echo $details | jq -r '.HardwareVendor')
+end
+
+function get_model
+    echo $(echo $details | jq -r '.HardwareModel')
+end
+
+if test $argv[1] = "username"
+    get_username
+else if test $argv[1] = "hostname"
+    get_hostname
+else if test $argv[1] = "vendor"
+    get_vendor
+else if test $argv[1] = "model"
+    get_model
+else if test $argv[1] = "hardware"
+    echo (get_vendor)" "(get_model)
+end

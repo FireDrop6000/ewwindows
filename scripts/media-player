@@ -1,0 +1,70 @@
+#!/bin/fish
+
+function get_player
+    set player (string replace -r -a '\b([\w])' '\U$0' (playerctl -l | head -1))
+    echo "$player"
+end
+
+function get_player_icon
+    set player (get_player)
+    if test $player = "Spotify"
+        echo "./images/media/spotify.svg"
+    else if string match -eq "Chromium" $player
+        echo "./images/media/chrome.svg"
+    else
+        echo "./images/media/music.png"
+    end
+end
+
+function get_title
+    set title (playerctl metadata --format '{{title}}')
+    echo "$title"
+end
+
+function get_artist
+    set artist (playerctl metadata --format '{{artist}}')
+    echo "$artist"
+end
+
+function get_art
+    curl -Ss (playerctl metadata --format '{{mpris:artUrl}}') > ~/.config/eww/images/media/media-art.png
+    echo "./images/media/media-art.png"
+end
+
+function toggler-icon
+    set mediaStatus (playerctl status)
+    if test $mediaStatus = "Paused"
+        echo "./images/media/play.png"
+    else if test $mediaStatus = "Playing"
+        echo "./images/media/pause.png"
+    else
+        echo "./images/media/replay.png"
+    end
+end
+
+if test $argv = "--player"
+    get_player
+else if test $argv = "--player-icon"
+    get_player_icon
+else if test $argv = "--title"
+    get_title
+else if test $argv = "--artist"
+    get_artist
+else if test $argv = "--art"
+    get_art
+else if test $argv = "--prev"
+    playerctl previous
+    get_art
+    get_title
+    get_artist
+else if test $argv = "--play-pause"
+    playerctl play-pause
+    toggler-icon
+else if test $argv = "--status"
+    toggler-icon
+else if test $argv = "--next"
+    playerctl next
+    get_art
+    get_title
+    get_artist
+end

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+status="$(nmcli general status | grep -oh "\w*connect\w*")"
+
+if [[ "$status" == "disconnected" ]]; then
+  echo "./images/network/no-internet.png"
+elif [[ "$status" == "connecting" ]]; then
+  printf "./images/network/loading.png"
+elif [[ "$status" == "connected" ]]; then
+  strength="$(python $HOME/.config/Scripts/wifi-conn-strength)"
+  if [[ "$?" == "0" ]]; then
+	printf "./images/network/wifi.png"
+  else
+    printf "./images/network/no-internet.png"
+  fi
+fi

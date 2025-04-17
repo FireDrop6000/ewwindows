@@ -1,0 +1,106 @@
+#!/bin/fish
+
+set API "290c1c1e53a66cf34935d8825cfbbdaf"
+
+set res (curl -Ss 'http://ip-api.com/json/')
+set lat (printf $res | jq -r '.lat')
+set lon (printf $res | jq -r '.lon')
+
+set weather (curl -Ss "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$API&units=metric")
+
+function get_temp
+    set temp (math round (printf $weather | jq -r '.main.temp'))
+    echo "$temp"
+end
+
+function get_cond
+    set cond (printf $weather | jq -r '.weather[0].main')
+    echo "$cond"
+end
+
+function get_icon
+    set name (printf $weather | jq -r '.weather[0].main')
+    set code (printf $weather | jq -r '.weather[0].id')
+    if test $name = "Clear"
+        echo "./images/weather/sunny.svg"
+    else if test $name = "Clouds"
+        if test $code -eq "801"
+            echo "./images/weather/partly-cloudy.svg"
+        else
+            echo "./images/weather/cloudy.svg"
+        end
+    else if test $name = "Mist"
+        echo "./images/weather/mist.svg"
+    else if test $name = "Smoke"
+        or test $name = "Ash"
+        or test $name = "Haze"
+        or test $name = "Dust"
+        or test $name = "Sand"
+        or test $name = "Fog"
+        echo "./images/weather/fog.svg"
+    else if test $name = "Squall"
+        or test $name = "Tornado"
+        or test $name = "Wind"
+        echo "./images/weather/wind.svg"
+    else if test $name = "Snow"
+        echo "./images/weather/snow.svg"
+    else if test $name = "Rain"
+        echo "./images/weather/rain.svg"
+    else if test $name = "Drizzle"
+        echo "./images/weather/drizzle.svg"
+    else if test $name = "Thunderstorm"
+        echo "./images/weather/thunderstorms.svg"
+    end
+end
+
+function get_loc
+    set loc (printf $res | jq -r '.city')
+    echo $loc
+end
+
+function get_bg
+    set name (printf $weather | jq -r '.weather[0].main')
+    set code (printf $weather | jq -r '.weather[0].id')
+    if test $name = "Clear"
+        echo "background: rgb(78,151,255); background: linear-gradient(0deg, rgba(78,151,255,1) 0%, rgba(35,113,249,1) 100%);"
+    else if test $name = "Clouds"
+        if test $code -eq "801"
+            echo "background: rgb(218,226,248); background: linear-gradient(0deg, rgba(218,226,248,1) 0%, rgba(164,177,214,1) 100%);"
+        else
+            echo "background: rgb(180,180,180); background: linear-gradient(0deg, rgba(180,180,180,1) 0%, rgba(33,33,33,1) 100%);"
+        end
+    else if test $name = "Mist"
+        echo "background: rgb(117,127,154); background: linear-gradient(0deg, rgba(117,127,154,1) 0%, rgba(215,221,232,1) 100%);"
+    else if test $name = "Smoke"
+        or test $name = "Ash"
+        or test $name = "Haze"
+        or test $name = "Dust"
+        or test $name = "Sand"
+        or test $name = "Fog"
+        echo "background: rgb(117,127,154); background: linear-gradient(0deg, rgba(117,127,154,1) 0%, rgba(215,221,232,1) 100%);"
+    else if test $name = "Squall"
+        or test $name = "Tornado"
+        or test $name = "Wind"
+        echo "background: rgb(117,127,154); background: linear-gradient(0deg, rgba(117,127,154,1) 0%, rgba(215,221,232,1) 100%);"
+    else if test $name = "Snow"
+        echo "background: rgb(230,218,218); background: linear-gradient(0deg, rgba(230,218,218,1) 0%, rgba(39,64,70,1) 100%);"
+    else if test $name = "Rain"
+        echo "background: rgb(155,174,197); background: linear-gradient(0deg, rgba(155,174,197,1) 0%, rgba(52,52,52,1) 100%);"
+    else if test $name = "Drizzle"
+        echo "background: rgb(155,174,197); background: linear-gradient(0deg, rgba(155,174,197,1) 0%, rgba(52,52,52,1) 100%);"
+    else if test $name = "Thunderstorm"
+        echo "background: rgb(53,72,94); background: linear-gradient(0deg, rgba(53,72,94,1) 0%, rgba(52,52,52,1) 100%);"
+    end
+end
+
+if test $argv = "--temp"
+    get_temp
+else if test $argv = "--con"
+    get_cond
+else if test $argv = "--icon" 
+    get_icon
+else if test $argv[1] = "loc"
+    get_loc
+else if test $argv[1] = "bg"
+    get_bg
+end

@@ -1,0 +1,5 @@
+#!/bin/fish
+
+upower -m | while read event;
+jc upower -d | jq -r '.[0].detail | (.percentage | round | tostring) + " " + .state';
+end

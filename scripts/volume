@@ -1,0 +1,72 @@
+#!/bin/fish
+
+function get_volume
+    while read line
+        echo $line | awk '{print $1}'
+    end
+end
+
+function current_volume
+    set volume (math (wpctl get-volume @DEFAULT_AUDIO_SINK@ | cut -b 9-12) '*' 100)
+    echo $volume
+end
+
+function get_icon
+    while read line
+        set current (echo $line | awk '{print $1}')
+        set mute (echo $line | awk '{print $2}')
+        if test $current -eq "0"  
+            or test $mute = "true"
+            echo "./images/volume/mute.png"
+        else if test $current -ge "0" 
+          and test $current -le "33"  
+            echo "./images/volume/volume-l.png"
+        else if test $current -ge "34" 
+          and test $current -le "66"  
+            echo "./images/volume/volume-m.png"
+        else if test $current -ge "67" 
+          and test $current -le "100"  
+            echo "./images/volume/volume-h.png"
+        else if test $current -ge "100" 
+            echo "./images/volume/volume-extra.png"
+        end
+    end
+end
+
+function current_icon
+    set current (current_volume)
+    set mute (pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
+    if test $current -eq "0"  
+        or test $mute = "true"
+        echo "./images/volume/mute.png"
+    else if test $current -ge "0" 
+      and test $current -le "33"  
+        echo "./images/volume/volume-l.png"
+    else if test $current -ge "34" 
+      and test $current -le "66"  
+        echo "./images/volume/volume-m.png"
+    else if test $current -ge "67" 
+      and test $current -le "100"  
+        echo "./images/volume/volume-h.png"
+    else if test $current -ge "100" 
+        echo "./images/volume/volume-extra.png"
+    end
+end
+
+function toggle_mute
+    wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+end
+
+if test $argv = "get_icon"
+    current_icon
+    ~/.config/eww/scripts/watch-output-volume | get_icon
+else if test $argv = "get_volume"
+    current_volume
+    ~/.config/eww/scripts/watch-output-volume | get_volume
+else if test $argv = "get_current_volume"
+    current_volume
+else if test $argv = "get_current_icon"
+    current_icon
+else if test $argv = "toggle"
+    toggle_mute
+end

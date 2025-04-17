@@ -1,0 +1,35 @@
+#!/usr/bin/fish
+
+set SOCKET_FILE_NAME "airplane-mode.sock"
+
+set SOCKET_PATH (
+    test -n "$XDG_RUNTIME_DIR"
+    and echo "$XDG_RUNTIME_DIR/$SOCKET_FILE_NAME"
+    or echo "/tmp/$SOCKET_FILE_NAME"
+)
+
+if test (count $argv) -eq 0
+    echo "Usage: $(status basename) {on|off|toggle|status|icon|color}"
+    exit 1
+end
+
+function send_command
+    echo $argv[1] | socat - UNIX-CONNECT:$SOCKET_PATH
+end
+
+if test $argv[1] = "icon"
+    echo "./images/airplane-mode/airplane-mode-$(send_command status).png"
+    exit 0
+end
+
+if test $argv[1] = "color"
+    set am_status (send_command status)
+    if test "$am_status" = "on"
+        echo "#2e7cea"
+    else
+        echo "white"
+    end
+    exit 0
+end
+
+send_command $argv[1]

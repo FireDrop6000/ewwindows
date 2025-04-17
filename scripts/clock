@@ -1,0 +1,21 @@
+#!/bin/fish
+
+function clock_locale
+    echo "$(date +%l:%M" "%p)"
+end
+
+function simple_clock
+    echo "$(date +%l:%M)"
+end
+
+function exp_clock
+    echo "$(date +%l:%M:%S" "%p)"
+end
+
+if test $argv[1] = "get_clock_locale"
+    clock_locale
+else if test $argv[1] = "get_simple_clock"
+    simple_clock
+else if test $argv[1] = "get_exp_clock"
+    exp_clock
+end

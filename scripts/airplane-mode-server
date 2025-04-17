@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import json
+import socket
+import signal
+import subprocess
+import atexit
+import select
+
+XDG_RUNTIME_DIR = os.getenv("XDG_RUNTIME_DIR", "/tmp")
+SOCKET_PATH = os.path.join(XDG_RUNTIME_DIR, "airplane-mode.sock")
+
+airplane_mode_active = False
+last_rfkill_status = None
+
+def run(cmd):
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return result.stdout.strip()
+
+def handle_on():
+    global airplane_mode_active, last_rfkill_status
+    last_rfkill_status = run("rfkill -J")
+    run("rfkill block all")
+    airplane_mode_active = True
+    return "Airplane mode enabled"
+
+def handle_off():
+    global airplane_mode_active, last_rfkill_status
+    if last_rfkill_status:
+        devices = json.loads(last_rfkill_status).get("rfkilldevices", [])
+        for device in devices:
+            if device["soft"] == "unblocked":
+                run(f"rfkill unblock {device['type']}")
+    else:
+        run("rfkill unblock all")
+    airplane_mode_active = False
+    return "Airplane mode disabled"
+
+def handle_toggle():
+    return handle_on() if not airplane_mode_active else handle_off()
+
+def handle_status():
+    return "on" if airplane_mode_active else "off"
+
+def clean_socket():
+    if os.path.exists(SOCKET_PATH):
+        try:
+            os.remove(SOCKET_PATH)
+        except OSError as e:
+            print(f"Warning: Failed to remove stale socket {SOCKET_PATH}: {e}", file=sys.stderr)
+
+def is_socket_stale():
+    if not os.path.exists(SOCKET_PATH):
+        return False
+
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as test_sock:
+            test_sock.setblocking(False)
+            try:
+                test_sock.connect(SOCKET_PATH)
+            except BlockingIOError:
+                pass
+
+            ready, _, _ = select.select([test_sock], [], [], 1)
+            if ready:
+                print(f"Error: Server appears to be running (socket in use at {SOCKET_PATH}).", file=sys.stderr)
+                return False 
+
+    except (ConnectionRefusedError, FileNotFoundError, OSError):
+        print(f"Removing stale socket file: {SOCKET_PATH}")
+        return True
+
+    return False
+
+def signal_handler(sig, frame):
+    print("Received termination signal, exiting...")
+    clean_socket()
+    sys.exit(0)
+
+def main():
+    atexit.register(clean_socket)
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    if is_socket_stale():
+        clean_socket()
+
+    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    server.bind(SOCKET_PATH)
+    server.listen(1)
+    os.chmod(SOCKET_PATH, 0o666)
+
+    print(f"Server listening on {SOCKET_PATH}")
+
+    while True:
+        conn, _ = server.accept()
+        with conn:
+            command = conn.recv(1024).decode().strip()
+            if command == "on":
+                response = handle_on()
+            elif command == "off":
+                response = handle_off()
+            elif command == "toggle":
+                response = handle_toggle()
+            elif command == "status":
+                response = handle_status()
+            else:
+                response = "Invalid command"
+            conn.sendall(response.encode())
+
+if __name__ == "__main__":
+    main()

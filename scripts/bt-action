@@ -1,0 +1,70 @@
+#!/bin/fish
+
+function get_status
+    set bt_status (qdbus --system org.bluez /org/bluez/hci0 org.bluez.Adapter1.Powered)
+    echo "$bt_status"
+end
+
+function get_icon
+    set bt_status (get_status)
+    if test $bt_status = "true"
+        echo "./images/bluetooth/bluetooth.png"
+    else
+        echo "./images/bluetooth/no-bluetooth.png"
+    end
+end
+
+function bg_color
+    set bt_status (get_status)
+    if test $bt_status = "true"
+        echo "#2e7cea"
+    else
+        echo "white"
+    end
+end
+
+function get_name
+    set devices (qdbus --system org.bluez | grep '/org/bluez/hci0/dev')
+    set connected_devices
+
+    for dev in $devices
+        set is_connected (qdbus --system org.bluez $dev org.bluez.Device1.Connected 2>/dev/null)
+        if test "$is_connected" = "true"
+            set dev_name (qdbus --system org.bluez $dev org.bluez.Device1.Name 2>/dev/null)
+            set connected_devices $connected_devices $dev_name
+        end
+    end
+
+    set count (count $connected_devices)
+
+    if test $count -eq 0
+        echo "Not Connected"
+    else if test $count -eq 1
+        echo $connected_devices[1]
+    else
+        echo "Connected ($count)"
+    end
+end
+
+function bt_toggle
+    set bt_status (get_status)
+    if test $bt_status = "true"
+        bluetoothctl power off
+    else
+        bluetoothctl power on
+    end
+end
+
+if test $argv = "--status"
+    get_status
+else if test $argv = "--icon"
+    get_icon
+else if test $argv = "--arrow"
+    arrow
+else if test $argv = "--color"
+    bg_color
+else if test $argv = "--name"
+    get_name
+else if test $argv = "--toggle"
+    bt_toggle
+end

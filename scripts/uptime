@@ -1,0 +1,27 @@
+#!/bin/fish
+
+set up_time (string sub --start=4 (uptime -p | string split ', ' | string join ' '))
+set val1 (echo $up_time | awk '{print $1}')
+set unit1 (echo $up_time | awk '{print $2}' | string sub --end=1)
+set val2 (echo $up_time | awk '{print $3}')
+set unit2 (echo $up_time | awk '{print $4}' | string sub --end=1)
+
+function get_unit1
+    echo $val1" "$unit1
+end
+
+function get_unit2
+    echo $val2" "$unit2
+end
+
+function get_uptime
+    echo $val1" "$unit1" "$val2" "$unit2
+end
+
+if test $argv[1] = "get_first"
+    get_unit1
+else if test $argv[1] = "get_second"
+    get_unit2
+else if test $argv[1] = "get_both"
+    get_uptime
+end

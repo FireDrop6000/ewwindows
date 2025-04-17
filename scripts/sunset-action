@@ -1,0 +1,48 @@
+#!/bin/fish
+
+
+function get_status
+    if pgrep hyprsunset &>/dev/null
+        echo "on"
+    else
+        echo "off"
+    end
+end
+
+function get_icon
+    set sunset_status (get_status)
+    if test $sunset_status = "on"
+        echo "./images/sunset/shield-on.png"
+    else
+        echo "./images/sunset/shield-off.png"
+    end
+end
+
+function bg_color
+    set sunset_status (get_status)
+    if test $sunset_status = "on"
+        echo "#2e7cea"
+    else
+        echo "white"
+    end
+end
+
+function toggle
+    set sunset_status (get_status)
+    if test $sunset_status = "on"
+        pkill -9 hyprsunset
+        rm -rf /run/user/1000/hypr/hyprsunset
+    else
+        hyprsunset &
+    end
+end
+
+if test $argv = "status"
+    get_status
+else if test $argv = "icon"
+    get_icon
+else if test $argv = "color"
+    bg_color
+else if test $argv = "toggle"
+    toggle
+end

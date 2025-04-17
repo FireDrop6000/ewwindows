@@ -1,0 +1,29 @@
+#!/bin/wpexec
+
+local node_om = ObjectManager {
+    Interest {
+        type = "node",
+        Constraint { "media.class", "matches", "Audio/Sink", type = "pw-global" }
+    }
+}
+
+Core.require_api("mixer", function(mixer)
+    node_om:connect("installed", function()
+        mixer:connect("changed", function(mixer, id)
+            mixer.scale = 'cubic'
+            local volume = mixer:call("get-volume", id)
+            local vol_percent = math.floor(volume.volume * 100)
+            local node = node_om:lookup(
+                Interest {
+                    type = "node",
+                    Constraint { "object.id", "=", id, type = "pw-global" }
+                }
+            )
+            if node and node.properties then
+                print(vol_percent, volume.mute)
+            end
+        end)
+    end)
+
+    node_om:activate()
+end)

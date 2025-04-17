@@ -1,0 +1,55 @@
+#!/bin/fish
+function get_status
+    set network_status (nmcli radio wifi)
+    echo "$network_status"
+end
+
+function get_icon
+    set network_status (get_status)
+    if test $network_status = "enabled"
+        echo "./images/wifi/wifi.png"
+    else
+        echo "./images/wifi/no-wifi.png"
+    end
+end
+
+function bg_color
+    set network_status (get_status)
+    if test $network_status = "enabled"
+        echo "#2e7cea"
+    else
+        echo "white"
+    end
+end
+
+function wifi_toggle
+    set network_status (get_status)
+    if test $network_status = "enabled"
+        nmcli radio wifi off
+    else
+        nmcli radio wifi on
+    end
+end
+
+function get_name
+    set wifi_name (nmcli connection show --active | awk '{if (NR == 2) {print $1}}')
+    if test $wifi_name = "lo"
+        echo "Not Connected"
+    else
+        echo $wifi_name
+    end
+end
+
+if test $argv = "--status"
+    get_status
+else if test $argv = "--name"
+    get_name
+else if test $argv = "--icon"
+    get_icon
+else if test $argv = "--arrow"
+    arrow
+else if test $argv = "--color"
+    bg_color
+else if test $argv = "--toggle"
+    wifi_toggle
+end
