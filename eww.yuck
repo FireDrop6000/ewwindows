@@ -323,6 +323,7 @@
     :space-evenly false
     (box
       :orientation "vertical"
+      :class "music-left-box"
       (label
         :class "song-name"
         :halign "start"
