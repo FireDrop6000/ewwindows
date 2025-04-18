@@ -1,0 +1,25 @@
+#!/bin/fish
+set uptime (uptime -p | sed -e 's/up //g')
+set USER (whoami)
+
+set choice1 (echo "Power Off")
+set choice2 (echo "Restart")
+set choice3 (echo "Suspend")
+set choice4 (echo "Hibernate")
+set choice5 (echo "Log Out")
+
+set chosen (echo -en "$choice1\n$choice2\n$choice3\n$choice4\n$choice5\n$choice6" | rofi -dmenu -i -theme ~/.config/rofi/rofi-power-menu/powermenu.rasi)
+
+
+switch $chosen
+    case "$choice1"
+        poweroff
+    case "$choice2"
+        reboot
+    case "$choice3"
+        systemctl suspend
+    case "$choice4"
+        systemctl hibernate
+    case "$choice5"
+        killhypr
+end

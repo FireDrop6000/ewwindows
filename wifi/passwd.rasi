@@ -1,0 +1,33 @@
+configuration {
+  sort:			true;
+  sorting-method:	"normal";
+  disable-history:	false;
+  scroll-method:	0;
+  window-thumbnail:	true;
+}
+
+@theme "/home/pratik/.local/share/rofi/themes/windows11-list-light.rasi"
+
+window {
+    width   :   300px;
+    location:   south east;
+    x-offset:   -219px;
+}
+
+mainbox {
+    padding :  10px; 
+}
+
+inputbar {
+  children:		[ prompt, entry ];
+}
+
+prompt { 
+  enabled: true; 
+  padding:		1px;
+  border-radius:	15px;
+}
+
+entry {
+  placeholder:		"Password";
+}

@@ -1,0 +1,30 @@
+configuration {
+  drun-display-format: "{name}";
+  modi: "drun";
+  show-icons: false;
+}
+
+@theme "/home/pratik/.local/share/rofi/themes/windows11-list-light.rasi"
+
+window {
+    location:   south west;
+    width   :   200px;
+    x-offset:   220px;
+}
+
+mainbox {
+    padding :   0px 0px 3px 0px;
+    spacing :   0px;
+}
+
+inputbar {
+    enabled :   false;
+}
+
+listview {
+    lines   :   3;
+}
+
+element {
+    border-radius   :   0px;
+}
