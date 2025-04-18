@@ -1,3 +1,4 @@
 # Clean, fresh concept Windows widgets and bar for your PC.
 
-> [!IMPORTANT] > **More coming soon**
+> [!IMPORTANT] 
+> **More coming soon**
