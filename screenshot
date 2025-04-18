@@ -1,0 +1,34 @@
+#!/bin/fish
+
+set data (hyprctl -j activewindow)
+set x ( echo $data | jq -r  '.at[0]' )
+set y ( echo $data | jq -r  '.at[1]' )
+set w ( echo $data | jq -r  '.size[0]' )
+set h ( echo $data | jq -r  '.size[1]' )
+
+set filename (date +'%s_grim.png')
+
+set option1 "Fullscreen (delay 3 sec)"
+set option2 "Selected area"
+set option3 "Selected window (delay 2 sec)"
+
+set options "$option1\n$option2\n$option3"
+
+set choice (echo -e "$options" | rofi -dmenu -i -no-show-icons -theme "~/.config/rofi/ss-menu.rasi")
+
+switch $choice
+    case $option1
+        sleep 3
+        grim ~/Pictures/Screenshots/$filename
+        wl-copy < ~/Pictures/Screenshots/$filename
+        notify-send "Screenshot created" "Mode: Fullscreen"
+    case $option2
+        grim -g "$(slurp)" ~/Pictures/Screenshots/$filename
+        wl-copy < ~/Pictures/Screenshots/$filename
+        notify-send "Screenshot created" "Mode: Selected area"
+    case $option3
+        sleep 2
+        grim -g "$x, $y $w""x$h" ~/Pictures/Screenshots/$filename
+        wl-copy < ~/Pictures/Screenshots/$filename
+        notify-send "Screenshot created" "Mode: Selected window"
+end

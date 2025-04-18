@@ -1,0 +1,23 @@
+#!/bin/fish
+
+~/.config/eww/scripts/watch-output-battery | while read line
+    set charge (echo $line | awk '{print $1}')
+    set charging (echo $line | awk '{print $2}')
+    if test $charging = "discharging"
+        if test $charge -eq "20"
+            or test $charge -eq "15"
+            or test $charge -eq "10"
+            or test $charge -eq "5"
+            or test $charge -eq "1"
+            if not eww active-windows | grep -q battery_warning
+                eww open battery_warning
+            end
+        end
+    else if test $charging = "charging"
+        if eww active-windows | grep -q battery_warning
+            eww close battery_warning
+        end
+    end
+end
+
+

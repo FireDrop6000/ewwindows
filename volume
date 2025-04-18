@@ -1,0 +1,80 @@
+#!/bin/fish
+
+set SCRIPT_RUNTIME_DIR (
+    test -n "$XDG_RUNTIME_DIR"
+    and echo "$XDG_RUNTIME_DIR/volume"
+    or echo "/tmp/volume"
+)
+mkdir -p $SCRIPT_RUNTIME_DIR
+
+set ACTIVE_COUNTS_PATH $SCRIPT_RUNTIME_DIR/active_counts.lock
+
+if test ! -e $ACTIVE_COUNTS_PATH
+    eww close volume_slider_bar
+    echo 0 > $ACTIVE_COUNTS_PATH
+end
+
+set NOTIFICATION_DURATION 3
+
+# Control active counts
+function active_counts_ctl
+    if test "$argv[1]" = "inc"
+        flock $ACTIVE_COUNTS_PATH -c "cat $ACTIVE_COUNTS_PATH | awk \"{print \\\$1 + 1}\" | sponge $ACTIVE_COUNTS_PATH"
+    else if test "$argv[1]" = "dec"
+        flock $ACTIVE_COUNTS_PATH -c "cat $ACTIVE_COUNTS_PATH | awk \"{print \\\$1 - 1}\" | sponge $ACTIVE_COUNTS_PATH"
+    else if test "$argv[1]" = "get"
+        flock $ACTIVE_COUNTS_PATH -c "cat $ACTIVE_COUNTS_PATH"
+    end
+end
+
+# Notify
+function notify_user
+    if not eww active-windows | grep -q volume_slider_bar
+        eww open volume_slider_bar
+    end
+    active_counts_ctl inc
+    sleep $NOTIFICATION_DURATION
+    active_counts_ctl dec
+    set active_counts (active_counts_ctl get)
+    if test "$active_counts" -le 0
+        eww close volume_slider_bar
+    end
+end
+
+function get_volume
+    set level (math (wpctl get-volume @DEFAULT_AUDIO_SINK@ | cut -b 9-12) '*' 100)
+    echo $level
+end
+
+# Increase Volume
+function inc_volume
+    set level (get_volume)
+    set new_volume (math min "($level + 5, 150)")
+    wpctl set-volume @DEFAULT_AUDIO_SINK@ "$new_volume%"
+	notify_user
+end
+
+# Decrease Volume
+function dec_volume
+	wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+	notify_user
+end
+
+# Toggle Mute
+function toggle_mute
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle 
+    notify_user
+end
+
+# Execute accordingly
+if test "$argv[1]" = "--get" 
+	get_volume
+else if test "$argv[1]" = "--inc" 
+	inc_volume
+else if test "$argv[1]" = "--dec" 
+	dec_volume
+else if test "$argv[1]" = "--toggle" 
+	toggle_mute
+else
+	get_volume
+end

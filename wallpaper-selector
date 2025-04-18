@@ -1,0 +1,15 @@
+#!/bin/fish
+set input_path (zenity --file-selection --title="Select Wallpaper" --file-filter="jpg" --file-filter="png")
+set output_path "/home/pratik/Pictures/Wallpaper/current_wallpaper.png"
+
+magick "$input_path" \
+    -resize 1920x1080 \
+    -gravity center -crop 1920x1080+0+0 +repage \
+    "$output_path"
+
+set silicon_bg "/home/pratik/.config/nvim/lua/config/silicon_bg.png"
+magick "$output_path" \
+    -blur 30x10 \
+    "$silicon_bg"
+
+~/.config/Scripts/wallpaper-changer-hyprpaper

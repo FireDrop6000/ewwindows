@@ -1,0 +1,12 @@
+#!/bin/fish
+killall hyprpaper
+killall eww
+sleep 2s
+hyprpaper & disown
+sleep 2s
+eww daemon
+sleep 2s
+eww open central
+eww open activate-linux
+sleep 1s
+eww open bar

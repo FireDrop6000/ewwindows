@@ -1,0 +1,4 @@
+#!/bin/fish
+
+set layout (hyprctl getoption input:kb_layout | grep str | awk '{print toupper($2)}')
+echo "$layout  "

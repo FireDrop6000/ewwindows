@@ -1,0 +1,24 @@
+#!/bin/fish
+
+set response (jc upower -d | jq -r '.[0].detail | (.percentage | round | tostring) + " " + .state')
+set charge (echo $response | awk '{print $1}')
+set charging (echo $response | awk '{print $2}')
+
+if test $charging = "charging"
+    echo "󱐌"
+else if test $charging = "fully-charged"
+    echo ""
+else
+    if test $charge -ge "80"
+        echo ""
+    else if test $charge -ge "60"
+        echo ""
+    else if test $charge -ge "40"
+        echo ""
+    else if test $charge -ge "20"
+        echo ""
+    else if test $charge -ge "0"
+        echo ""
+    end
+end
+

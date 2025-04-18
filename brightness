@@ -1,0 +1,70 @@
+#!/bin/fish
+
+set SCRIPT_RUNTIME_DIR (
+    test -n "$XDG_RUNTIME_DIR"
+    and echo "$XDG_RUNTIME_DIR/brightness"
+    or echo "/tmp/brightness"
+)
+mkdir -p $SCRIPT_RUNTIME_DIR
+
+set ACTIVE_COUNTS_PATH $SCRIPT_RUNTIME_DIR/active_counts.lock
+
+if test ! -e $ACTIVE_COUNTS_PATH
+    eww close brightness_slider_bar
+    echo 0 > $ACTIVE_COUNTS_PATH
+end
+
+set NOTIFICATION_DURATION 3
+
+# Control active counts
+function active_counts_ctl
+    if test "$argv[1]" = "inc"
+        flock $ACTIVE_COUNTS_PATH -c "cat $ACTIVE_COUNTS_PATH | awk \"{print \\\$1 + 1}\" | sponge $ACTIVE_COUNTS_PATH"
+    else if test "$argv[1]" = "dec"
+        flock $ACTIVE_COUNTS_PATH -c "cat $ACTIVE_COUNTS_PATH | awk \"{print \\\$1 - 1}\" | sponge $ACTIVE_COUNTS_PATH"
+    else if test "$argv[1]" = "get"
+        flock $ACTIVE_COUNTS_PATH -c "cat $ACTIVE_COUNTS_PATH"
+    end
+end
+
+# Notify
+function notify_user
+    if not eww active-windows | grep -q brightness_slider_bar
+        eww open brightness_slider_bar
+    end
+    active_counts_ctl inc
+    sleep $NOTIFICATION_DURATION
+    active_counts_ctl dec
+    set active_counts (active_counts_ctl get)
+    if test "$active_counts" -le 0
+        eww close brightness_slider_bar
+    end
+end
+
+function get_brightness
+    set LIGHT (printf "%.0f\n" $(brightnessctl i))
+	echo "$LIGHT%"
+end
+
+# Increase brightness
+function inc_brightness
+    brightnessctl set 10%+
+	notify_user
+end
+
+# Decrease brightness
+function dec_brightness
+    brightnessctl set 10%-
+	notify_user
+end
+
+# Execute accordingly
+if test "$argv[1]" = "--get" 
+	get_brightness
+else if test "$argv[1]" = "--inc" 
+	inc_brightness
+else if test "$argv[1]" = "--dec" 
+	dec_brightness
+else
+	get_brightness
+end
