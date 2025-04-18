@@ -5,20 +5,20 @@ set charge (echo $response | awk '{print $1}')
 set charging (echo $response | awk '{print $2}')
 
 if test $charging = "charging"
-    echo "󱐌"
+    echo "󱐌 $charge%"
 else if test $charging = "fully-charged"
-    echo ""
+    echo "   $charge%"
 else
     if test $charge -ge "80"
-        echo ""
+        echo "   $charge%"
     else if test $charge -ge "60"
-        echo ""
+        echo "   $charge%"
     else if test $charge -ge "40"
-        echo ""
+        echo "   $charge%"
     else if test $charge -ge "20"
-        echo ""
+        echo "   $charge%"
     else if test $charge -ge "0"
-        echo ""
+        echo "   $charge%"
     end
 end
 
